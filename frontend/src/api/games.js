@@ -1,7 +1,15 @@
 import api from "./client";
 
-export const getGames = async (search = "") => {
-  const endpoint = search ? `/games/?search=${search}` : "/games/";
+export const getGames = async (search = "", ordering = "") => {
+  let endpoint = "/games/";
+  const params = new URLSearchParams();
+  
+  if (search) params.append("search", search);
+  if (ordering) params.append("ordering", ordering);
+  
+  const queryString = params.toString();
+  if (queryString) endpoint += `?${queryString}`;
+  
   return api(endpoint);
 };
 
