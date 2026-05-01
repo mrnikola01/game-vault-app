@@ -7,7 +7,15 @@ import {
   Box,
   Divider,
   Grid,
+  Paper,
+  Avatar,
+  Stack,
 } from "@mui/material";
+import {
+  AdminPanelSettings as AdminIcon,
+  Logout as LogoutIcon,
+  Favorite as FavoriteIcon,
+} from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
 import { getFavorites } from "../api/games";
 import GameCard from "../components/GameCard";
@@ -34,58 +42,93 @@ function UserPage() {
     navigate("/");
   };
 
+  const openAdmin = () => {
+    window.open("http://localhost:8000/admin/", "_blank");
+  };
+
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <Container maxWidth="sm" sx={{ py: 8 }}>
-      <Box
+    <Container maxWidth="md" sx={{ py: 8 }}>
+      <Paper
+        elevation={0}
         sx={{
-          mb: 4,
-          display: "flex",
-          flexDirection: { xs: "column", sm: "row" },
-          alignItems: { xs: "flex-start", sm: "center" },
-          gap: 2,
+          p: 4,
+          borderRadius: 4,
+          border: "1px solid #333",
+          background: "linear-gradient(145deg, #1a1a1a 0%, #121212 100%)",
+          mb: 6,
         }}
       >
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 900, mb: 0.5 }}>
-            {user?.email}
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            User Profile
-          </Typography>
-        </Box>
-
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: 1,
-            width: { xs: "100%", sm: "auto" },
-          }}
-        >
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={handleSignOut}
-            sx={{ width: { xs: "100%", sm: "auto" } }}
-          >
-            Sign Out
-          </Button>
-        </Box>
-      </Box>
-      <Divider sx={{ mb: 4 }} />
+        <Grid container spacing={4} alignItems="center">
+          <Grid size={{ xs: 12, sm: "auto" }}>
+            <Avatar
+              sx={{
+                width: 120,
+                height: 120,
+                bgcolor: "primary.main",
+                fontSize: "3rem",
+                fontWeight: 900,
+              }}
+            >
+              {user?.email?.[0].toUpperCase()}
+            </Avatar>
+          </Grid>
+          <Grid size={{ xs: 12, sm: "grow" }}>
+            <Typography variant="h4" sx={{ fontWeight: 900, mb: 1 }}>
+              Account Settings
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+              {user?.email}
+            </Typography>
+            
+            <Stack direction="row" spacing={2}>
+              <Button
+                variant="contained"
+                startIcon={<AdminIcon />}
+                onClick={openAdmin}
+                sx={{ borderRadius: 2, fontWeight: 700 }}
+              >
+                Admin Panel
+              </Button>
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<LogoutIcon />}
+                onClick={handleSignOut}
+                sx={{ borderRadius: 2, fontWeight: 700 }}
+              >
+                Sign Out
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Paper>
 
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-          Favorite Games
-        </Typography>
-        {favorites.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            No favorite games yet.
+        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 3 }}>
+          <FavoriteIcon color="primary" />
+          <Typography variant="h5" sx={{ fontWeight: 900 }}>
+            My Favorites
           </Typography>
+        </Stack>
+        
+        {favorites.length === 0 ? (
+          <Paper
+            variant="outlined"
+            sx={{
+              p: 4,
+              textAlign: "center",
+              borderRadius: 3,
+              borderStyle: "dashed",
+            }}
+          >
+            <Typography color="text.secondary">
+              You haven't added any games to your favorites yet.
+            </Typography>
+          </Paper>
         ) : (
-          <Grid container spacing={2}>
+          <Grid container spacing={3}>
             {favorites.map((fav) => (
               <Grid size={{ xs: 12, sm: 6 }} key={fav.id}>
                 <GameCard

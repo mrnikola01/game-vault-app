@@ -28,7 +28,10 @@ const client = async (endpoint, { body, ...customConfig } = {}) => {
       localStorage.removeItem('access_token');
     }
 
-    const data = await response.json();
+    let data = null;
+    if (response.status !== 204) {
+      data = await response.json();
+    }
     
     if (response.ok) {
       return data;
