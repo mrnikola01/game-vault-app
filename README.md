@@ -19,9 +19,10 @@ A modern e-commerce platform for games, built with **Django REST Framework** and
 ## 🛠️ Features
 - **Custom User System**: Email-based authentication.
 - **Game Browsing**: Search and filter through the game collection.
+- **Review System**: Users can leave text reviews and Like/Dislike games (Steam-style).
 - **Cart System**: Fully functional shopping cart synced with the backend.
 - **Favorites**: Personal list of favorite games.
-- **Admin Dashboard**: Manage games, users, and orders via Django Admin.
+- **Admin Dashboard**: Manage games, users, and reviews via Django Admin.
 
 ## 📦 Getting Started
 
