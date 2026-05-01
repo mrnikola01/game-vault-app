@@ -10,11 +10,17 @@ import {
   Paper,
   Avatar,
   Stack,
+  TextField,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import {
   AdminPanelSettings as AdminIcon,
   Logout as LogoutIcon,
   Favorite as FavoriteIcon,
+  Edit as EditIcon,
+  Save as SaveIcon,
+  Cancel as CancelIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
 import { getFavorites } from "../api/games";
@@ -22,14 +28,25 @@ import GameCard from "../components/GameCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 function UserPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateProfile } = useAuth();
   const navigate = useNavigate();
   const [favorites, setFavorites] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Edit states
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({ bio: "", avatar: "", username: "" });
+  const [isSaving, setIsSaving] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+
   useEffect(() => {
     if (user) {
       setIsLoading(true);
+      setEditData({ 
+        bio: user.bio || "", 
+        avatar: user.avatar || "",
+        username: user.username || "" 
+      });
       getFavorites().then((data) => {
         if (data) setFavorites(data);
         setIsLoading(false);
@@ -46,6 +63,19 @@ function UserPage() {
     window.open("http://localhost:8000/admin/", "_blank");
   };
 
+  const handleSaveProfile = async () => {
+    setIsSaving(true);
+    try {
+      await updateProfile(editData);
+      setIsEditing(false);
+      setSnackbar({ open: true, message: "Profile updated successfully!", severity: "success" });
+    } catch (err) {
+      setSnackbar({ open: true, message: "Failed to update profile.", severity: "error" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (isLoading) return <LoadingSpinner />;
 
   return (
@@ -60,9 +90,10 @@ function UserPage() {
           mb: 6,
         }}
       >
-        <Grid container spacing={4} alignItems="center">
+        <Grid container spacing={4} alignItems="flex-start">
           <Grid size={{ xs: 12, sm: "auto" }}>
             <Avatar
+              src={user?.avatar}
               sx={{
                 width: 120,
                 height: 120,
@@ -71,36 +102,107 @@ function UserPage() {
                 fontWeight: 900,
               }}
             >
-              {user?.email?.[0].toUpperCase()}
+              {!user?.avatar && user?.email?.[0].toUpperCase()}
             </Avatar>
           </Grid>
           <Grid size={{ xs: 12, sm: "grow" }}>
-            <Typography variant="h4" sx={{ fontWeight: 900, mb: 1 }}>
-              Account Settings
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-              {user?.email}
-            </Typography>
-            
-            <Stack direction="row" spacing={2}>
-              <Button
-                variant="contained"
-                startIcon={<AdminIcon />}
-                onClick={openAdmin}
-                sx={{ borderRadius: 2, fontWeight: 700 }}
-              >
-                Admin Panel
-              </Button>
-              <Button
-                variant="outlined"
-                color="error"
-                startIcon={<LogoutIcon />}
-                onClick={handleSignOut}
-                sx={{ borderRadius: 2, fontWeight: 700 }}
-              >
-                Sign Out
-              </Button>
+            <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
+              <Box>
+                <Typography variant="h4" sx={{ fontWeight: 900 }}>
+                  {user?.username || "Gamer"}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  {user?.email}
+                </Typography>
+              </Box>
+              {!isEditing && (
+                <Button 
+                  startIcon={<EditIcon />} 
+                  onClick={() => setIsEditing(true)}
+                  variant="outlined"
+                  size="small"
+                >
+                  Edit
+                </Button>
+              )}
             </Stack>
+
+            <Divider sx={{ my: 2, borderColor: "rgba(255,255,255,0.1)" }} />
+
+            {isEditing ? (
+              <Stack spacing={3} sx={{ mt: 2 }}>
+                <TextField
+                  label="Username"
+                  fullWidth
+                  value={editData.username}
+                  onChange={(e) => setEditData({ ...editData, username: e.target.value })}
+                  placeholder="Your unique handle"
+                />
+                <TextField
+                  label="Bio"
+                  multiline
+                  rows={3}
+                  fullWidth
+                  value={editData.bio}
+                  onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
+                  placeholder="Tell us about yourself..."
+                />
+                <TextField
+                  label="Avatar URL"
+                  fullWidth
+                  value={editData.avatar}
+                  onChange={(e) => setEditData({ ...editData, avatar: e.target.value })}
+                  placeholder="Link to your profile picture"
+                />
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    variant="contained"
+                    startIcon={<SaveIcon />}
+                    onClick={handleSaveProfile}
+                    disabled={isSaving}
+                  >
+                    Save Changes
+                  </Button>
+                  <Button
+                    variant="text"
+                    startIcon={<CancelIcon />}
+                    onClick={() => setIsEditing(false)}
+                    disabled={isSaving}
+                  >
+                    Cancel
+                  </Button>
+                </Stack>
+              </Stack>
+            ) : (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                  About Me
+                </Typography>
+                <Typography variant="body1" sx={{ color: "text.secondary", mb: 4, fontStyle: user?.bio ? "normal" : "italic" }}>
+                  {user?.bio || "No biography added yet. Click edit to tell your story!"}
+                </Typography>
+                
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    variant="contained"
+                    startIcon={<AdminIcon />}
+                    onClick={openAdmin}
+                    sx={{ borderRadius: 2, fontWeight: 700 }}
+                  >
+                    Admin Panel
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    startIcon={<LogoutIcon />}
+                    onClick={handleSignOut}
+                    sx={{ borderRadius: 2, fontWeight: 700 }}
+                  >
+                    Sign Out
+                  </Button>
+                </Stack>
+              </Box>
+            )}
           </Grid>
         </Grid>
       </Paper>
@@ -142,6 +244,16 @@ function UserPage() {
           </Grid>
         )}
       </Box>
+
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={4000} 
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert severity={snackbar.severity} sx={{ width: '100%', fontWeight: 700 }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }

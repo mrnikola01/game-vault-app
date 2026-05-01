@@ -268,7 +268,7 @@ function GameDetailsPage() {
                     </Avatar>
                     <Box sx={{ flexGrow: 1 }}>
                       <Typography sx={{ fontWeight: 700 }}>
-                        {review.user_email}
+                        {review.user_display_name || review.user_email}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         {new Date(review.created_at).toLocaleDateString()}

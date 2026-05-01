@@ -3,10 +3,11 @@ from .models import Game, Favorite, Review
 
 class ReviewSerializer(serializers.ModelSerializer):
     user_email = serializers.EmailField(source='user.email', read_only=True)
+    user_display_name = serializers.CharField(source='user.username', read_only=True)
 
     class Meta:
         model = Review
-        fields = ['id', 'user', 'user_email', 'game', 'is_like', 'comment', 'created_at']
+        fields = ['id', 'user', 'user_email', 'user_display_name', 'game', 'is_like', 'comment', 'created_at']
         read_only_fields = ['user', 'created_at']
 
 class GameSerializer(serializers.ModelSerializer):
