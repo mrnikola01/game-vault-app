@@ -30,3 +30,17 @@ class Favorite(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.game.title}"
+
+class Review(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviews')
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='reviews')
+    is_like = models.BooleanField(default=True)
+    comment = models.TextField(max_length=1000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'game')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{'Like' if self.is_like else 'Dislike'} by {self.user.email} for {self.game.title}"

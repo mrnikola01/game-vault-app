@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Game, Favorite
+from .models import Game, Favorite, Review
 
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):
@@ -11,3 +11,8 @@ class GameAdmin(admin.ModelAdmin):
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('user', 'game', 'created_at')
     list_filter = ('user', 'game')
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('user', 'game', 'is_like', 'created_at')
+    list_filter = ('is_like', 'game', 'user')

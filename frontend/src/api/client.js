@@ -29,17 +29,25 @@ const client = async (endpoint, { body, ...customConfig } = {}) => {
     }
 
     let data = null;
-    if (response.status !== 204) {
-      data = await response.json();
+    const text = await response.text();
+
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        // If it's not JSON, just keep the text
+        data = { detail: text };
+      }
     }
     
     if (response.ok) {
       return data;
     }
     
-    return Promise.reject(data);
+    return Promise.reject(data || { detail: "An error occurred" });
   } catch (err) {
-    return Promise.reject(err.message || err);
+    console.error("API Error:", err);
+    return Promise.reject({ detail: err.message || err });
   }
 };
 

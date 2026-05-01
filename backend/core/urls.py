@@ -3,7 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
-from games.views import GameViewSet, FavoriteViewSet
+from games.views import GameViewSet, FavoriteViewSet, ReviewViewSet
 from cart.views import CartViewSet
 from users.views import RegisterView, UserDetailView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -11,6 +11,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 router = DefaultRouter()
 router.register(r'games', GameViewSet, basename='game')
 router.register(r'favorites', FavoriteViewSet, basename='favorite')
+router.register(r'reviews', ReviewViewSet, basename='review')
 router.register(r'cart', CartViewSet, basename='cart')
 
 urlpatterns = [
